@@ -2,14 +2,17 @@ package app
 
 import (
 	"gitlab.karlson.dev/individual/wertio_hometask/internal/config"
-	"gitlab.karlson.dev/individual/wertio_hometask/internal/services/coinmarketcap"
+	"gitlab.karlson.dev/individual/wertio_hometask/internal/controller"
+	"gitlab.karlson.dev/individual/wertio_hometask/internal/presenter"
+	"gitlab.karlson.dev/individual/wertio_hometask/internal/repository/coinmarketcap"
+	"gitlab.karlson.dev/individual/wertio_hometask/internal/usecase"
 )
 
 type Wrapper struct {
-	config   *config.Config
-	Services struct {
-		CoinMarketCap *coinmarketcap.Wrapper
-	}
+	config     *config.Config
+	Presenter  usecase.OutputPort
+	Controller usecase.InputPort
+	Interactor *usecase.Interactor
 }
 
 func NewWrapper() (*Wrapper, error) {
@@ -20,8 +23,10 @@ func NewWrapper() (*Wrapper, error) {
 	var w = &Wrapper{}
 	w.config = cfg
 
-	cmcAPI := coinmarketcap.New(cfg.Services.CoinMarketCap)
-	w.Services.CoinMarketCap = cmcAPI
+	repository := coinmarketcap.New(cfg.Services.CoinMarketCap)
+	w.Interactor = usecase.NewInteractor(repository)
+	w.Presenter = new(presenter.Console)
+	w.Controller = controller.NewCLIController(w.Interactor, w.Presenter)
 
 	return w, nil
 }

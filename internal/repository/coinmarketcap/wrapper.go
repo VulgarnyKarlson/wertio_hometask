@@ -45,7 +45,7 @@ func (w *Wrapper) GetTicker(ctx context.Context, from, to string) (*domain.Ticke
 
 	var resData response
 	if err := json.Unmarshal(resp.Body, &resData); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error unmarshal response from coinmarketcap: %w", err)
 	}
 
 	if resData.Status.ErrorCode != 0 {
@@ -66,7 +66,7 @@ func (w *Wrapper) GetTicker(ctx context.Context, from, to string) (*domain.Ticke
 
 	var ticker *domain.Ticker
 	for _, v := range resData.Data {
-		ticker = domain.NewTicker(v.ID, v.Symbol, v.Quote[to].Price)
+		ticker = domain.NewTicker(v.ID, v.Symbol, to, v.Quote[to].Price)
 	}
 
 	return ticker, nil

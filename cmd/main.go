@@ -20,11 +20,5 @@ func mainWithErr() error {
 		return err
 	}
 
-	output, err := cmd.Convert(ctx, os.Args[1:])
-	if err != nil {
-		return err
-	}
-
-	println(output)
-	return nil
+	return cmd.Convert(ctx, os.Args[1:])
 }

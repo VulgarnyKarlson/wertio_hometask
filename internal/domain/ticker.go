@@ -1,16 +1,18 @@
 package domain
 
 type Ticker struct {
-	id    int
-	name  string
-	price float64
+	id       int
+	name     string
+	price    float64
+	currency string
 }
 
-func NewTicker(id int, name string, price float64) *Ticker {
+func NewTicker(id int, name, to string, price float64) *Ticker {
 	return &Ticker{
-		id:    id,
-		name:  name,
-		price: price,
+		id:       id,
+		name:     name,
+		price:    price,
+		currency: to,
 	}
 }
 
@@ -24,4 +26,8 @@ func (t *Ticker) Name() string {
 
 func (t *Ticker) Price() float64 {
 	return t.price
+}
+
+func (t *Ticker) Currency() string {
+	return t.currency
 }
