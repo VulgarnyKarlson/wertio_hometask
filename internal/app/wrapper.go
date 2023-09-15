@@ -11,7 +11,7 @@ import (
 type Wrapper struct {
 	config     *config.Config
 	Presenter  usecase.OutputPort
-	Controller usecase.InputPort
+	Controller usecase.Controller
 	Interactor *usecase.Interactor
 }
 
@@ -25,8 +25,9 @@ func NewWrapper() (*Wrapper, error) {
 
 	repository := coinmarketcap.New(cfg.Services.CoinMarketCap)
 	w.Interactor = usecase.NewInteractor(repository)
+	w.Controller = controller.NewCLIController(w.Interactor)
+	// По хорошему presenter представляет с собой подобие некого http сервера, и эндпоинт обработчиком является Controller
 	w.Presenter = new(presenter.Console)
-	w.Controller = controller.NewCLIController(w.Interactor, w.Presenter)
 
 	return w, nil
 }

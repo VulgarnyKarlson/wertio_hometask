@@ -5,36 +5,33 @@ import (
 	"fmt"
 	"strconv"
 
+	"gitlab.karlson.dev/individual/wertio_hometask/internal/domain"
 	"gitlab.karlson.dev/individual/wertio_hometask/internal/usecase"
 )
 
 type CLIController struct {
-	outputPort usecase.OutputPort
 	interactor *usecase.Interactor
 }
 
 func NewCLIController(
 	interactor *usecase.Interactor,
-	outputPort usecase.OutputPort,
 ) *CLIController {
-	return &CLIController{interactor: interactor, outputPort: outputPort}
+	return &CLIController{interactor: interactor}
 }
 
-func (c *CLIController) ConvertCurrency(ctx context.Context, amount, from, to string) {
+func (c *CLIController) ConvertCurrency(ctx context.Context, amount, from, to string) *domain.Response {
 	if amount == "" || from == "" || to == "" {
-		c.outputPort.Error(fmt.Errorf("usage: ./app [amount] [from_currency] [to_currency]"))
-		return
+		return domain.NewResponse(0, 0, fmt.Errorf("usage: ./app [amount] [from_currency] [to_currency]"))
 	}
 
 	amountFloat, err := strconv.ParseFloat(amount, 64)
 	if err != nil {
-		c.outputPort.Error(fmt.Errorf("invalid amount: %w", err))
-		return
+		return domain.NewResponse(0, 0, err)
 	}
 	result, err := c.interactor.ConvertCurrency(ctx, amount, from, to)
 	if err != nil {
-		c.outputPort.Error(err)
+		return domain.NewResponse(0, 0, err)
 	} else {
-		c.outputPort.ConversionResult(ctx, amountFloat, from, to, result)
+		return domain.NewResponse(amountFloat, result, nil)
 	}
 }
